@@ -151,6 +151,7 @@ def parseFeed(feed):
 def clean():
     conn.commit()
     cursor.close()
+    pushToGithub()
 
 def main():
     dbCreateTable()
@@ -158,8 +159,7 @@ def main():
     for feed in feeds:
         parseFeed(feed)
         dbInsertRow(feed)
-    pushToGithub()
     clean()
-
+    
 if __name__ == '__main__':
     main()
