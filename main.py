@@ -115,8 +115,8 @@ def dbInsertRow(feed):
     cursor.execute(sql)
 
 def dbCheckArticleExists(feed):
-    sql = "select exists(select 1 from {table} where posted_at='{time}')".format(
-        table=DB_TABLE_NAME, time=feed['posted_at'])     
+    sql = "select exists(select 1 from {table} where title='{title}')".format(
+        table=DB_TABLE_NAME, title=feed['title'])     
 
     cursor.execute(sql)
     return True if cursor.fetchone()[0] else False
