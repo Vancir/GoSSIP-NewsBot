@@ -76,11 +76,13 @@ def removeInvalidTags(soup):
             match.replaceWithChildren()
 
 def fixWxHtml(soup):
+    # fix wechat html
     fixWxHtmlImg(soup)
     removeInvalidTags(soup)
     return soup.prettify()
 
 def getPaperPdf(soup, outdir):
+    # get paper pdf link
     stub = soup.find(text=re.compile(".*PDF(:|：)"))
     if not stub: return
 
@@ -91,30 +93,36 @@ def getPaperPdf(soup, outdir):
     download(paper, outdir)
  
 def getWeRssDatas():
+    # get werss data
     resp = requests.get(WeRssUrl)
     obj = json.loads(resp.text)
     lists = obj["data"]["list"]
     return lists
 
 def pushToGithub():
+    # commit all changes and push to github
     os.system("git add -A")
     os.system('git commit -m "GoSSIP-Bot Sync: {}"'.format(datetime.now()))
     os.system("git push origin master")
 
 def dbCreateTable():
+    # sqlite create table
     cursor.execute("create table if not exists " + DB_TABLE_SCHEMA)
 
 def dbInsertRow(feed):
+    # insert row to sqlite db
     row = feed.copy()
     del row["content"]
 
     cols = ', '.join('"{}"'.format(col) for col in row.keys())
     vals = ', '.join('"{}"'.format(col) for col in row.values())
-    sql = 'insert into "{0}" ({1}) values ({2})'.format(DB_TABLE_NAME, cols, vals)
+    data = '"{0}" ({1}) values ({2})'.format(DB_TABLE_NAME, cols, vals)
 
+    sql = 'insert into ' + data
     cursor.execute(sql)
 
-def dbCheckArticleExists(feed):
+def dbExists(feed):
+    # check row exists in sqlite db
     sql = "select exists(select 1 from {table} where title='{title}')".format(
         table=DB_TABLE_NAME, title=feed['title'])     
 
@@ -122,6 +130,7 @@ def dbCheckArticleExists(feed):
     return True if cursor.fetchone()[0] else False
 
 def genMarkdown(html, outdir):
+    # convert html to markdown and dump
     # TODO: fix link contains '\_'
     content = md(html)
     output = outdir / 'README.md'
@@ -129,14 +138,15 @@ def genMarkdown(html, outdir):
         fp.write(content)
 
 def genHtml(html, outdir):
+    # dump html
     output = outdir / 'source.html'
     with output.open('w') as fp:
         fp.write(html)
 
 def parseFeed(feed):
-    if dbCheckArticleExists(feed): return
+    # parse, fix and dump html
     
-    print(feed["title"])
+    # print(feed["title"])
     outdir = Archives / feed["title"]
     if outdir.exists(): return
     else: outdir.mkdir()
@@ -149,6 +159,7 @@ def parseFeed(feed):
     # getPaperPdf(soup, outdir)
 
 def clean():
+    # close sqlite db and push to github
     conn.commit()
     cursor.close()
     pushToGithub()
@@ -157,6 +168,8 @@ def main():
     dbCreateTable()
     feeds = getWeRssDatas()
     for feed in feeds:
+        if dbExists(feed): 
+            continue
         parseFeed(feed)
         dbInsertRow(feed)
     clean()
