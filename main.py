@@ -15,6 +15,8 @@ from markdownify import markdownify as md
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler(sys.stdout))
+# disable urllib3 logging
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 config = json.load(open('config.json'))
 
@@ -29,12 +31,12 @@ LONG_LENGTH = 512
 DB_TABLE_NAME = "Articles"
 DB_TABLE_SCHEMA = "{name}( \
     author varchar({short}), \
-    content_iid int, \
-    is_original boolean, \
-    idx int, \
+    content_iid varchar({short}), \
+    is_original varchar({short}), \
+    idx varchar({short}), \
     mid varchar({short}), \
     picture varchar({long}), \
-    posted_at varchar({short}) primary key, \
+    posted_at varchar({short}), \
     source_url varchar({long}), \
     summary varchar({long}), \
     title varchar({long}), \
@@ -107,8 +109,9 @@ def dbInsertRow(feed):
     del row["content"]
 
     cols = ', '.join('"{}"'.format(col) for col in row.keys())
-    vals = ', '.join(':{}'.format(col) for col in row.keys())
+    vals = ', '.join('"{}"'.format(col) for col in row.values())
     sql = 'insert into "{0}" ({1}) values ({2})'.format(DB_TABLE_NAME, cols, vals)
+
     cursor.execute(sql)
 
 def dbCheckArticleExists(feed):
@@ -133,6 +136,7 @@ def genHtml(html, outdir):
 def parseFeed(feed):
     if dbCheckArticleExists(feed): return
     
+    print(feed["title"])
     outdir = Archives / feed["title"]
     if outdir.exists(): return
     else: outdir.mkdir()
@@ -142,7 +146,7 @@ def parseFeed(feed):
     html = fixWxHtml(soup)
     genHtml(html, outdir)
     genMarkdown(html, outdir)
-    getPaperPdf(soup, outdir)
+    # getPaperPdf(soup, outdir)
 
 def clean():
     conn.commit()
@@ -153,8 +157,8 @@ def main():
     feeds = getWeRssDatas()
     for feed in feeds:
         parseFeed(feed)
+        dbInsertRow(feed)
     pushToGithub()
-    dbCreateTable()
     clean()
 
 if __name__ == '__main__':

@@ -1,0 +1,75 @@
+<p>
+ 今天我们去DSN 2020学术会议上看看一篇关于嵌入式安全测试的研究论文
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.2552710843373494" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUWcJib13YXHEOlrTml0JSpy0Yx2k1mZzOFibSfesXicJ08wg277xAtk97Q/640?wx_fmt=png" data-type="png" data-w="1328" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUWcJib13YXHEOlrTml0JSpy0Yx2k1mZzOFibSfesXicJ08wg277xAtk97Q/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者对嵌入式系统的安全研究进行了剖析，指出其关键问题之一在于如何提供精确的系统模拟，从而帮助安全分析人员运行嵌入式固件并对其代码执行进行更为细粒度的追踪和分析。为了解决这个难点，作者设计了名为HardSnap的解决方案，针对嵌入式系统模拟执行，HardSnap把那些硬件特化的部分给仿真执行了，要么使用软件仿真，要么使用FPGA仿真，其目的都是让模拟执行能够处理硬件相关的部分。
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.3624353819643883" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUdtrJRyIU30RicCCa4GvBQDv9xzjTFe3r6eujdlMgzYKPAQfZePuohtQ/640?wx_fmt=png" data-type="png" data-w="1741" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUdtrJRyIU30RicCCa4GvBQDv9xzjTFe3r6eujdlMgzYKPAQfZePuohtQ/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ HardSnap的核心技术是在运行过程中进行多次快照（snapshot），通过记录运行时状态，减少测试所需要的重复执行的开销（例如和fuzzing对比，不需要每次重启到初始状态）
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7794457274826789" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMU5mRfQucrItyWYvibTjnUqnUiaECqwCRV2p460vmXg3nrGQzN8AWs4Wkg/640?wx_fmt=png" data-type="png" data-w="866" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMU5mRfQucrItyWYvibTjnUqnUiaECqwCRV2p460vmXg3nrGQzN8AWs4Wkg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ HardSnap的特色之一是利用了FPGA来辅助实现一部分仿真（但是FPGA开发成本不高吗？）
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7050279329608938" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUTTSoMKDPpJnp43e87OaD3oVvJnyWpDgwBZAvmyCiaXibq9SwxfANPiayg/640?wx_fmt=png" data-type="png" data-w="895" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUTTSoMKDPpJnp43e87OaD3oVvJnyWpDgwBZAvmyCiaXibq9SwxfANPiayg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 和其它一些方案相比，HardSnap的优势：
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.34870317002881845" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUjdwVA2KPR2CwLCfsMKWzfzBbDmIictmUOmcLwrcBuvyw1m7BdWj6icZA/640?wx_fmt=png" data-type="png" data-w="1735" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hbXIh3wfgWqOTAxiaoWTMUjdwVA2KPR2CwLCfsMKWzfzBbDmIictmUOmcLwrcBuvyw1m7BdWj6icZA/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+ <br/>
+</p>
+<p>
+ http://s3.eurecom.fr/docs/dsn20_corteggiani.pdf
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 项目开源代码：
+</p>
+<p>
+ https://github.com/hardsnap/
+</p>
