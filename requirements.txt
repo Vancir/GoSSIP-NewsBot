@@ -1,0 +1,4 @@
+requests==2.24.0
+pathlib==1.0.1
+markdownify==0.4.1
+beautifulsoup4==4.9.1

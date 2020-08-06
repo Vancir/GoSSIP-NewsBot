@@ -1,12 +1,11 @@
-import json
-import requests
-import re
 import os
+import re
+import json
 import shutil
-from datetime import datetime
+import requests
 from pathlib import Path
+from datetime import datetime
 from bs4 import BeautifulSoup as bs
-#import html2markdown as h2m
 from markdownify import markdownify as md
 
 Token = "ddaf9e31-bad4-4cae-9714-bf81604fe4c2"
@@ -16,11 +15,7 @@ WeRssUrl = WeRssApi.format(RSSID=RSSID, Token=Token)
 
 invalid_tags = ['span']
 
-
-
-
 def download(url, outdir):
-    print("downloading", url, "...")
     fname = ''
     r = requests.get(url, stream=True)
     if "Content-Disposition" in r.headers.keys():
@@ -77,7 +72,7 @@ def main():
         output = outdir / 'README.md'
         with output.open('w') as fp:
             fp.write(content)
-            
+
     gitpush()
 
 if __name__ == '__main__':
