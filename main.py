@@ -78,17 +78,16 @@ def fixWxHtml(soup):
     removeInvalidTags(soup)
     return soup.prettify()
 
-def getPaperPdf(soup):
-    paper_link = ''
+def getPaperPdf(soup, outdir):
     stub = soup.find(text=re.compile(".*PDF(:|：)"))
-    if stub:
-        ptags = stub.parent.find_next_siblings('p')
-        paper = ptags[0].text.strip()
-        if paper.endswith('.pdf'):
-            paper_link = paper
+    if not stub: return
 
-    return paper_link
+    ptags = stub.parent.find_next_siblings('p')
+    paper = ptags[0].text.strip()
+    if not paper.endswith('.pdf'): return
 
+    download(paper, outdir)
+ 
 def getWeRssDatas():
     resp = requests.get(WeRssUrl)
     obj = json.loads(resp.text)
@@ -103,9 +102,6 @@ def pushToGithub():
 def dbCreateTable():
     cursor.execute("create table if not exists " + DB_TABLE_SCHEMA)
 
-def genDB():
-    pass
-
 def dbInsertRow(feed):
     row = feed.copy()
     del row["content"]
@@ -119,29 +115,34 @@ def dbCheckArticleExists(feed):
     sql = "select exists(select 1 from {table} where posted_at='{time}')".format(
         table=DB_TABLE_NAME, time=feed['posted_at'])     
 
-    print(sql)   
     cursor.execute(sql)
-    return True if cursor.fetchone() else False
+    return True if cursor.fetchone()[0] else False
 
-def parseFeed(feed):
-    # TODO: SQLite support and check dup
-    if dbCheckArticleExists(feed): return
-
-    outdir = Path("archives") / feed["title"]
-    if outdir.exists(): return
-    else: outdir.mkdir()
-
-    soup = bs(feed["content"], "html.parser")
-
-    html = fixWxHtml(soup)
+def genMarkdown(html, outdir):
     # TODO: fix link contains '\_'
     content = md(html)
     output = outdir / 'README.md'
     with output.open('w') as fp:
         fp.write(content)
 
-    # paper = getPaperPdf(soup)
-    # if paper: download(paper, outdir)
+def genHtml(html, outdir):
+    output = outdir / 'source.html'
+    with output.open('w') as fp:
+        fp.write(html)
+
+def parseFeed(feed):
+    if dbCheckArticleExists(feed): return
+    
+    outdir = Archives / feed["title"]
+    if outdir.exists(): return
+    else: outdir.mkdir()
+
+    soup = bs(feed["content"], "html.parser")
+
+    html = fixWxHtml(soup)
+    genHtml(html, outdir)
+    genMarkdown(html, outdir)
+    getPaperPdf(soup, outdir)
 
 def clean():
     conn.commit()
