@@ -30,4 +30,4 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GOSSIP_ACCESS_TOKEN }}@github.com/Vancir/GoSSIP-NewsBot
           git add -A
           git commit -m "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
-          git push origin master
+          git push
