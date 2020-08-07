@@ -1,8 +1,6 @@
 name: 'GoSSIP WeChat Official Account AutoSync Bot'
 
-on:
-    push:
-
+on: push
 
 jobs:
     bot:
