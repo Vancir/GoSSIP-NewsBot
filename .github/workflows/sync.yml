@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with: 
+          token: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
       - uses: actions/setup-python@v2
         with:
           python-version: '3.x'
@@ -21,14 +23,7 @@ jobs:
           pip install -r requirements.txt
       - name: AutoSync
         run: python main.py
-      - name: AutoPush
-        env:
-          GITHUB_TOKEN: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
-        run: |
-          git config --global user.name 'Vancir'
-          git config --global user.email 'vancirprince@gmail.com'
-          git remote set-url --push origin https://Vancir:$GITHUB_TOKEN@github.com/Vancir/GoSSIP-NewsBot
-          git add -A
-          git commit -m "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
-          git push origin master
-
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          # Required
+          commit_message: GoSSIP NewsFeed AutoSync
