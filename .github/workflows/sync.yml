@@ -1,15 +1,12 @@
 name: 'GoSSIP WeChat Official Account AutoSync Bot'
 
-on:
-    push:
-    schedule:
-        - cron: '0 21 * * *'
-
 jobs:
     bot:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
+              with:
+                  token: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
             - uses: actions/setup-python@v2
               with:
                   python-version: '3.x'
@@ -20,3 +17,9 @@ jobs:
                 pip install -r requirements.txt
             - name: Sync news feed
               run: python main.py
+            - name: AutoSync
+              run: |
+                  git config --global user.name 'NewsBot'
+                  git config --global user.email 'newsbot@vancir.com'
+                  git commit -am "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
+                  git push

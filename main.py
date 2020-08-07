@@ -100,12 +100,6 @@ def getWeRssDatas():
     lists = obj["data"]["list"]
     return lists
 
-def pushToGithub():
-    # commit all changes and push to github
-    os.system("git add -A")
-    os.system('git commit -m "GoSSIP-Bot Sync: {}"'.format(datetime.now()))
-    os.system("git push origin master")
-
 def dbCreateTable():
     # sqlite create table
     cursor.execute("create table if not exists " + DB_TABLE_SCHEMA)
@@ -163,7 +157,6 @@ def clean():
     # close sqlite db and push to github
     conn.commit()
     cursor.close()
-    pushToGithub()
 
 def main():
     dbCreateTable()
