@@ -1,16 +1,17 @@
-
 name: sync
 
 on:
   push:
     branches:
-      - master
+      - arcitles
 
 jobs:
   bot:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
+        with: 
+          token: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
       - uses: actions/setup-python@v2
         with:
           python-version: '3.x'
@@ -21,13 +22,6 @@ jobs:
           pip install -r requirements.txt
       - name: AutoSync
         run: python main.py
-      - name: Commit files
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git commit -m "Add changes" -a
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+      - uses: ad-m/github-push-action@master
         with:
-          branch: '${{ github.ref }}'
-          github_token: '${{ secrets.GOSSIP_ACCESS_TOKEN }}'
+          github_token: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
