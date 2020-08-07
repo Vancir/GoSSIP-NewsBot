@@ -23,6 +23,7 @@ config = json.load(open('config.json'))
 Archives = Path(config["Archives"])
 conn = sqlite3.connect(config["SQLite"])
 cursor = conn.cursor()
+
 WeRssApi = "https://wealert2.vux.li/api/v3/developers/subscribes/{RSSID}?token={Token}"
 WeRssUrl = WeRssApi.format(RSSID=config["RSSID"], Token=config["Token"])
 
