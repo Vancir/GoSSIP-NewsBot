@@ -3,7 +3,7 @@ name: sync
 on:
   push:
     branches:
-      - arcitles
+      - master
 
 jobs:
   bot:
@@ -22,6 +22,6 @@ jobs:
           pip install -r requirements.txt
       - name: AutoSync
         run: python main.py
-      - uses: ad-m/github-push-action@master
+      - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          github_token: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
+          commit_message: GoSSIP NewsBot AutoPush
