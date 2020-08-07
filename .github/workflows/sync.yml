@@ -3,6 +3,7 @@ name: 'GoSSIP WeChat Official Account AutoSync Bot'
 on:
     push:
 
+
 jobs:
     bot:
         runs-on: ubuntu-latest
