@@ -23,11 +23,12 @@ jobs:
           pip install -r requirements.txt
       - name: AutoSync
         run: python main.py
-      - name: AutoPush
+      - name: Commit files
         run: |
-          git config --global user.name 'Vancir'
-          git config --global user.email 'vancirprince@gmail.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GOSSIP_ACCESS_TOKEN }}@github.com/Vancir/GoSSIP-NewsBot
-          git add -A
-          git commit -m "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
-          git push
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Add changes" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
