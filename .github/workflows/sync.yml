@@ -1,12 +1,13 @@
-name: 'GoSSIP WeChat Official Account AutoSync Bot'
-on: push
+name: GoSSIP WeChat Official Account AutoSync Bot
+on:
+  push:
+    branches:
+      - master
 jobs:
     bot:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-              with:
-                  token: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
             - uses: actions/setup-python@v2
               with:
                   python-version: '3.x'
@@ -21,5 +22,6 @@ jobs:
               run: |
                   git config --global user.name 'NewsBot'
                   git config --global user.email 'newsbot@vancir.com'
+                  git remote set-url origin https://x-access-token:${{ secrets.GOSSIP_ACCESS_TOKEN }}@github.com/${{ github.repository }}
                   git commit -am "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
-                  git push origin master
+                  git push
