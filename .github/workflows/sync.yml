@@ -1,8 +1,10 @@
 name: sync
+
 on:
   push:
     branches:
       - master
+
 jobs:
     bot:
         runs-on: ubuntu-latest
@@ -22,5 +24,5 @@ jobs:
               run: |
                   git config --global user.name 'Vancir'
                   git config --global user.email 'vancirprince@gmail.com'
-                  git commit -am "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
-                  git push
+                  git commit -m "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
+                  git push origin master
