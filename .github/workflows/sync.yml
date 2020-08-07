@@ -21,8 +21,4 @@ jobs:
           pip install -r requirements.txt
       - name: AutoSync
         run: python main.py
-      - name: AutoPush
-        run: |
-          git add -A
-          git commit -m "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
-          git push origin master
+      
