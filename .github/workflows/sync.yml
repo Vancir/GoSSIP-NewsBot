@@ -1,3 +1,4 @@
+name: sync
 on:
   push:
     branches:
@@ -19,8 +20,7 @@ jobs:
               run: python main.py
             - name: AutoSync
               run: |
-                  git config --global user.name 'NewsBot'
-                  git config --global user.email 'newsbot@vancir.com'
-                  git remote set-url origin https://x-access-token:${{ secrets.GOSSIP_ACCESS_TOKEN }}@github.com/${{ github.repository }}
+                  git config --global user.name 'Vancir'
+                  git config --global user.email 'vancirprince@gmail.com'
                   git commit -am "GoSSIP-NewsBot AutoSync: `date +'%Y-%m-%d %H:%M:%S'`"
                   git push
