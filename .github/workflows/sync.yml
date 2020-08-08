@@ -1,6 +1,9 @@
 name: sync
 
-on: push
+on: 
+  push:
+    branches:
+      - master
   #schedule:
   #  - cron: '0 21 * * *'
 
@@ -21,9 +24,10 @@ jobs:
           pip install -r requirements.txt
       - name: AutoSync
         run: python main.py
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v4.4.0
         with:
           commit_message: "GoSSIP NewsBot AutoPush"
           branch: ${{ github.head_ref }}
+          file_pattern: *.db archives/*.html archives/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
