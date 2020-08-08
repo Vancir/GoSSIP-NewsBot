@@ -28,6 +28,5 @@ jobs:
         with:
           commit_message: "GoSSIP NewsBot AutoPush"
           branch: ${{ github.head_ref }}
-          file_pattern: *.db archives/*.html archives/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
