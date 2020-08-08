@@ -1,9 +1,8 @@
 name: sync
 
-on:
-  push:
-  schedule:
-    - cron: '0 21 * * *'
+on: push
+  #schedule:
+  #  - cron: '0 21 * * *'
 
 jobs:
   bot:
@@ -24,4 +23,7 @@ jobs:
         run: python main.py
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: GoSSIP NewsBot AutoPush
+          commit_message: "GoSSIP NewsBot AutoPush"
+          branch: ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
