@@ -1,0 +1,20 @@
+language: python
+python:
+  - "3.8"
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+# command to run tests
+script:
+  - python main.py
+after_script:
+  - cd archives
+  - git init
+  - git config user.name "Travis CI"
+  - git config user.email "vancirprince@gmail.com"
+  - git add -A
+  - git commit -m "GoSSIP NewsBot TravisCI Push"
+  - git push --force --quiet "https://${TRAVIS_TOKEN}@${GH_REF}" master:archives
+branches:
+  only:
+    - master
