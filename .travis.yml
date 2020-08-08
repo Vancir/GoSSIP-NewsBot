@@ -8,13 +8,12 @@ install:
 script:
   - python main.py
 after_script:
-  - cd archives
   - git init
-  - git config user.name "Travis CI"
+  - git config user.name "TravisCI"
   - git config user.email "vancirprince@gmail.com"
   - git add -A
   - git commit -m "GoSSIP NewsBot TravisCI Push"
-  - git push --force --quiet "https://${GOSSIP_TRAVIS_TOKEN}@${GH_REF}" master:archives
+  - git push --force --quiet "https://${GOSSIP_TRAVIS_TOKEN}@${GH_REF}" master:master
 branches:
   only:
     - master

@@ -144,7 +144,7 @@ def parseFeed(feed):
     # print(feed["title"])
     outdir = Archives / feed["title"]
     if outdir.exists(): return
-    else: outdir.mkdir()
+    else: outdir.mkdir(parents=True)
 
     soup = bs(feed["content"], "html.parser")
 
