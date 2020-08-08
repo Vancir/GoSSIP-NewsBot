@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-  #schedule:
-  #  - cron: '0 21 * * *'
+  schedule:
+    - cron: '30 * * * *'
 
 jobs:
   bot:
@@ -28,6 +28,5 @@ jobs:
         with:
           commit_message: "GoSSIP NewsBot AutoPush"
           branch: ${{ github.head_ref }}
-          file_pattern: *.db archives/*.html archives/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GOSSIP_ACCESS_TOKEN }}
