@@ -2,5 +2,5 @@
     "Token": "ddaf9e31-bad4-4cae-9714-bf81604fe4c2",
     "RSSID": "6888bc4a-b31c-48c6-a42f-9ee3a5f4d0d4",
     "Archives": "archives",
-    "SQLite": "archives.db"
+    "SQLite": "archives/archives.db"
 }
