@@ -1,0 +1,111 @@
+<p>
+ 一年又一年！我们的论文推荐从情人节开始，已经积累了许多人森经验和姿势水平，今天我们选择一篇来自香港的研究论文
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.27622999407231774" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JpficuzjxywcQZnjsTmTJkeRPCyibLjuqqCicz4Xur6qicTH153YgxOichcg/640?wx_fmt=png" data-type="png" data-w="1687" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JpficuzjxywcQZnjsTmTJkeRPCyibLjuqqCicz4Xur6qicTH153YgxOichcg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 本文讨论了Android系统上一类特殊的link——app link的安全问题。先说说背景知识，在讨论app link之前，Android系统上已经存在deep link (e.g., yelp:///career/home) 这种特殊的link，Android系统允许deep link将控制流从一个网页导向一个手机上的app，实现便捷的导向机制。与deep link不同的是，app link必须类似http(s)://...这样的格式，并且系统强制了针对app link的相关verification。简单地说，app link就是让用户在安装了对应app的情况下就直接访问app内容，否则就访问web内容的一种机制（https://developer.android.com/training/app-links）
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.6014084507042253" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JB8b02Fb0QXxBN0FF4ztfHoeVMhUUriapibOmUqvuyaLB9nAMnWFP3K7A/640?wx_fmt=png" data-type="png" data-w="710" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JB8b02Fb0QXxBN0FF4ztfHoeVMhUUriapibOmUqvuyaLB9nAMnWFP3K7A/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者进一步研究发现，随着新版本的Android系统上instant app（https://developer.android.com/topic/google-play-instant，可翻译为“快应用”？即无需安装就可使用的轻便app，MIUI目前也有类似的实现）的兴起，app link这个机制变得危险起来，由于instant app的存在，针对app link的verification可以很容易就被绕过
+</p>
+<p>
+ <img class="rich_pages" data-ratio="0.4169202678027998" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JJsmyKIiaQ8tYKicsIjFKXqy0uIIYJicuwrWH1CDzKycicUudEDicE84icgdg/640?wx_fmt=png" data-type="png" data-w="1643" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JJsmyKIiaQ8tYKicsIjFKXqy0uIIYJicuwrWH1CDzKycicUudEDicE84icgdg/640?wx_fmt=png" style="white-space: normal;text-align: center;"/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者研发了一个名为
+ <strong>
+  MIAFinder
+ </strong>
+ 的工具，对40万个Android app进行了检查，发现其中30%的app都可能受到和app link相关的三类攻击：link hijacking
+ <br/>
+ with smart text selection (STS), link hijacking without STS, instant app hijacking的影响
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.8409090909090909" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JuErOWUyMu9ntPibNFREAwKTd1lt86NpzVAFGJIYvibxfWoGxmwDPxgyw/640?wx_fmt=png" data-type="png" data-w="572" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JuErOWUyMu9ntPibNFREAwKTd1lt86NpzVAFGJIYvibxfWoGxmwDPxgyw/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7141796585003712" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6J9ibDtqx13KicesZ4VgiaPib7oe0g0Opjj8BGLzhoC3wicL3oJJicNzRbk8YQ/640?wx_fmt=png" data-type="png" data-w="1347" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6J9ibDtqx13KicesZ4VgiaPib7oe0g0Opjj8BGLzhoC3wicL3oJJicNzRbk8YQ/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.6790450928381963" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JOLCDIZwD7tAawQFDorWQG50T45vwheGyK9SUOzqhldzkvkP5XpPh2A/640?wx_fmt=png" data-type="png" data-w="1131" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JOLCDIZwD7tAawQFDorWQG50T45vwheGyK9SUOzqhldzkvkP5XpPh2A/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ MIAFinder用静态分析来检查三类攻击
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7047058823529412" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JAsCOUmUSRhszoxbafX5u2YIAsvLicSR4ITFnaI3MaLeg3Zgibs0L0Lzg/640?wx_fmt=png" data-type="png" data-w="850" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JAsCOUmUSRhszoxbafX5u2YIAsvLicSR4ITFnaI3MaLeg3Zgibs0L0Lzg/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.43285371702637887" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JuC0qDFQo2JoKCYtXRVKYx5iczsgTNV6eD2pQRGVtH6IFz3l6T4eyR3A/640?wx_fmt=png" data-type="png" data-w="834" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JuC0qDFQo2JoKCYtXRVKYx5iczsgTNV6eD2pQRGVtH6IFz3l6T4eyR3A/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 研究结论总结：
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.2751196172248804" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JePic6KplbvkLh4LFJ9CXdSiaBQzicBPKfYTR3yTsrjPmgdTf0e0H08Vyg/640?wx_fmt=png" data-type="png" data-w="836" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JePic6KplbvkLh4LFJ9CXdSiaBQzicBPKfYTR3yTsrjPmgdTf0e0H08Vyg/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.23132530120481928" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6Jvk7Ucib8goSiaQBQoJJPeMzAsKj3PP0oWjoRCiaCTKwDMdyibsxErOUl6w/640?wx_fmt=png" data-type="png" data-w="830" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6Jvk7Ucib8goSiaQBQoJJPeMzAsKj3PP0oWjoRCiaCTKwDMdyibsxErOUl6w/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.21904761904761905" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6Jds4GjM4yLNw5SnibP32ly86ZqCDziaS7LWnLviab7WToUmUSdiaodVSpIA/640?wx_fmt=png" data-type="png" data-w="840" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6Jds4GjM4yLNw5SnibP32ly86ZqCDziaS7LWnLviab7WToUmUSdiaodVSpIA/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.1381345926800472" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JRPHRbEEibClcL3ru5T9F4u0EubbIFOPoLQSLcEAYjY1edjWmrHsfdow/640?wx_fmt=png" data-type="png" data-w="847" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odiczGEgDycYBduoH3zZ59L6JRPHRbEEibClcL3ru5T9F4u0EubbIFOPoLQSLcEAYjY1edjWmrHsfdow/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+</p>
+<p>
+ https://www.chrisyttang.org/research/publication/paper/fse-20.pdf
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ MIAFinder开源：
+</p>
+<p>
+ https://sites.google.
+ <br/>
+ com/view/instant-app-attacks
+</p>
