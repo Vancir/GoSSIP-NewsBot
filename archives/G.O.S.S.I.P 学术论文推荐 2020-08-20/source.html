@@ -1,0 +1,77 @@
+<p>
+ 今天我们推荐的论文是来自USENIX ATC 2020会议上一篇关于容器安全的研究论文
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.274294670846395" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFibEmK23ibUW9jV53gJ1S3GKsFNnrW3VyW27056813DLnypV6aMluDmqA/640?wx_fmt=png" data-type="png" data-w="1276" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFibEmK23ibUW9jV53gJ1S3GKsFNnrW3VyW27056813DLnypV6aMluDmqA/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <img class="rich_pages" data-ratio="0.7427427427427428" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFotS3SILjop8B89bLseZ7S042dlAs8wRJrXCO4URNbFaicr86MBqP79Q/640?wx_fmt=png" data-type="png" data-w="999" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFotS3SILjop8B89bLseZ7S042dlAs8wRJrXCO4URNbFaicr86MBqP79Q/640?wx_fmt=png" style="text-align: center;white-space: normal;"/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.5898277276456112" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFz3sFZPZs6IRVib80mqYGvQIfBRVe8WHZfafiaibcmfHWibFza63tyhTzAA/640?wx_fmt=png" data-type="png" data-w="1219" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFz3sFZPZs6IRVib80mqYGvQIfBRVe8WHZfafiaibcmfHWibFza63tyhTzAA/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ 作者研究了Container Networks即多个容器组网形成的结构中的安全问题，作者指出当前的容器网络管理通常基于操作系统本身的IP级别访问控制（通过iptables来实现），这种访问控制机制存在五大挑战，如下图所示：
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7862985685071575" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFVuZkQP40icfcSmV57xB4Fqqd7zic9l6tKOuhDewkX4ibBwiaIycXiaicqyJg/640?wx_fmt=png" data-type="png" data-w="978" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFVuZkQP40icfcSmV57xB4Fqqd7zic9l6tKOuhDewkX4ibBwiaIycXiaicqyJg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ 为了解决这些挑战，作者设计了名为BASTION的高性能安全网络栈（high-performance security enforcement network stack），通过BASTION可以抵御多种以前的安全防护机制抵御不了的攻击
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.23496432212028542" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFWL4Icpza4HJSiaP7QEGmmFjN9KE1JCgqkESaRoicibnET2aoiaAiaCcJaxA/640?wx_fmt=png" data-type="png" data-w="1962" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFWL4Icpza4HJSiaP7QEGmmFjN9KE1JCgqkESaRoicibnET2aoiaAiaCcJaxA/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ BASTION的核心包括一个记录了所有container之间安全依赖关系的manager，以及network visibility service和traffic visibility service；其中network visibility service负责对容器之间的通讯进行安全审查，而traffic visibility service则负责执行容器之间的安全包转发
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.9730807577268196" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuF4tfc270BYvBMVuxmRZ9sAYmGOSk17pxYkjyYbHE8FNEc4NPsrHOhaQ/640?wx_fmt=png" data-type="png" data-w="1003" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuF4tfc270BYvBMVuxmRZ9sAYmGOSk17pxYkjyYbHE8FNEc4NPsrHOhaQ/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7202572347266881" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFMAply1ibazmYLWm1HYZbz8fhw21N30XcYqTFwtzibNKHaaMGdNiblnJSw/640?wx_fmt=png" data-type="png" data-w="933" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFMAply1ibazmYLWm1HYZbz8fhw21N30XcYqTFwtzibNKHaaMGdNiblnJSw/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 在保证了安全的同时，BASTION具备很好的性能，不会让容器网络通讯变得更慢：
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.2938337801608579" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFwXNzn62yaNwnNeIoePb4GuwNgt6DfDkWRrv5bPBszDmLYnoACkH1hA/640?wx_fmt=png" data-type="png" data-w="1865" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFwXNzn62yaNwnNeIoePb4GuwNgt6DfDkWRrv5bPBszDmLYnoACkH1hA/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.36745689655172414" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFtJGPlLleicOoaWYg0hzqibzkjVVyYhDCgbkLXfib7hYSrrslh7Ee0pRKw/640?wx_fmt=png" data-type="png" data-w="928" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFtJGPlLleicOoaWYg0hzqibzkjVVyYhDCgbkLXfib7hYSrrslh7Ee0pRKw/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.5104740904079382" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFiaIyUatghb3cJ4FSBNzkdZYhLxicfYhJTTLoibgBGgTqtFB5ZBunsolKg/640?wx_fmt=png" data-type="png" data-w="907" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9ylr2dlcpYrThgyvkCfuFiaIyUatghb3cJ4FSBNzkdZYhLxicfYhJTTLoibgBGgTqtFB5ZBunsolKg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+</p>
+<p>
+ https://www.usenix.org/system/files/atc20-nam.pdf
+</p>
