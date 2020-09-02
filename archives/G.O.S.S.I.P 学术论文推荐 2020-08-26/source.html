@@ -1,0 +1,52 @@
+<p>
+ 今天我们为大家推荐一篇CCS 2020会议录用的关于现有代码防御系统的对抗性研究论文
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.39547511312217193" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odictxvibgxzpicbk0I1lx0oX4WrSCavNbjTKt92repYTUAebqZf2d74K8uwphbVmmRmNSkLXJly1qWzg/640?wx_fmt=png" data-type="png" data-w="1105" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odictxvibgxzpicbk0I1lx0oX4WrSCavNbjTKt92repYTUAebqZf2d74K8uwphbVmmRmNSkLXJly1qWzg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者指出，现有的针对代码重用攻击（code reuse attack）的代码防御技术（例如经典的控制流完整性保护CFI）可以对抗许多攻击，尽管攻击者也会针对性布置相关的策略，但是通常这种对抗是根据CFI实现来进行调整布局的，很少有攻击能够做到所谓的“防御感知”（即论文提到的defense-aware），如果攻击技术能够智能感知防御的方法，那么攻击成功的可能性会大大提升
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者认为，code reuse attack可归约为一类状态可达性分析问题，而防御者只需要限制程序的非法状态转移，即可防御控制流劫持。利用这种观察，作者设计了一种自动化去挖掘新的控制流转移策略的方法，并实现了名为Limbo的工具，基于concolic execution去探索程序的执行转移可能性，发现新的控制流劫持和代码重用攻击！
+</p>
+<p>
+</p>
+<p>
+ 作者将Limbo与当前主流的DOP攻击构造工具BOPC对比，发现Limbo在细粒度的CFI存在的情况下，仍然能够发现相关攻击，而BOPC在很多情况下无法工作
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <img class="rich_pages" data-ratio="0.35404141616566465" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odictxvibgxzpicbk0I1lx0oX4WpWia9M1gEaSjHB18u72W5OzetpdibWa1qPDakVqgYJzMmrUhdP577IRQ/640?wx_fmt=png" data-type="png" data-w="1497" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odictxvibgxzpicbk0I1lx0oX4WpWia9M1gEaSjHB18u72W5OzetpdibWa1qPDakVqgYJzMmrUhdP577IRQ/640?wx_fmt=png" style="text-align: center;white-space: normal;"/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者又将Limbo与angrop（基于angr，用于发现rop攻击）进行对比，Limbo不仅效果好，而且在特定情况下，只需要提供10K左右的代码量，Limbo就可以发现攻击路径！（相比之下angrop在代码量小于200K时表现不佳）
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.4959183673469388" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odictxvibgxzpicbk0I1lx0oX4W7zW2t1rOwkgjdL8a62MFsRTEInghxBkVcHiclicD5iby0CGgSMNEbzy5w/640?wx_fmt=png" data-type="png" data-w="1470" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odictxvibgxzpicbk0I1lx0oX4W7zW2t1rOwkgjdL8a62MFsRTEInghxBkVcHiclicD5iby0CGgSMNEbzy5w/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+ <br/>
+</p>
+<p>
+ https://edmcman.github.io/papers/ccs20.pdf
+</p>
+<p>
+ <br/>
+</p>

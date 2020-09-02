@@ -1,0 +1,131 @@
+<p>
+ 今天的论文推荐来自2019年软工期刊IEEE Transactions on Software Engineering上一篇关于fuzzing的综述论文
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.23904576436222005" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhOpkd31Opd8CEyyOB24hhia3ybPr27IZkveYP4CoHfdycfgANRD2VqEg/640?wx_fmt=png" data-type="png" data-w="2054" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhOpkd31Opd8CEyyOB24hhia3ybPr27IZkveYP4CoHfdycfgANRD2VqEg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ Fuzzing相关研究在近年的安全和软件会议、期刊上都占据了较大的比例，是研究热点之一。今天推荐的这篇综述，针对
+ <strong>
+  2008年1月到2019年2月在4个主要安全会议（CCS、S&amp;P、USEC、NDSS）和3个主要软件工程会议（FSE、ASE、ICSE）发表的所有关于fuzzing的研究
+ </strong>
+ ，以及其他一些会议、期刊上一些有趣的研究，做了分析与归纳。我们就循着这篇综述，来一起对当前fuzzing技术做一个大体的学习。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.1481140754369825" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhx9qwcLrTpKfJspqBO0ryaPlP7Z2X7rZmjEiaHNw9UnGFStervicSXNmw/640?wx_fmt=png" data-type="png" data-w="1087" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhx9qwcLrTpKfJspqBO0ryaPlP7Z2X7rZmjEiaHNw9UnGFStervicSXNmw/640?wx_fmt=png" style=""/>
+</p>
+<p>
+</p>
+<p>
+ 简单来说，Fuzzing就是通过生成一些语法或者语义上畸形的输入来重复地运行目标程序的过程，以期找到目标程序存在的bug或漏洞。作为高效的分析和测试工具，攻击者常采用fuzzing来生成目标程序的exploit或是做一些渗透测试。对应的，安全审计人员和开发者为了保障产品的安全，要求先于攻击者fuzz出程序的问题，一些关于anti-fuzzing的研究，比如USEC‘19上的Fuzzification: Anti-FuzzingTechniques，就是出于这一目标。
+</p>
+<p>
+</p>
+<p>
+ 目前，众多的fuzzer，根据不同的分类标准也产生了不同的类别。根据fuzzer在每次fuzzing过程中获取的语义粒度将fuzzer分为三类：
+</p>
+<ul class="list-paddingleft-2" style="list-style-type: disc;">
+ <li>
+  <p>
+   黑盒（block-box）：顾名思义，黑盒的fuzzer无法得到待测试对象的内部信息，被视作IO/Data驱动的测试。
+  </p>
+ </li>
+ <li>
+  <p>
+   白盒（white-box）：在生成输入的过程中，能获取待测对象内部以及运行过程中的所有信息。例如：动态符号执行，符号执行与具体执行同时进行，借助具体的程序状态来简化符号约束的求解，也被称为concolic testing。又比如一些污点分析技术的引入。相对黑盒fuzzing来说，白盒fuzzing开销更大
+  </p>
+ </li>
+ <li>
+  <p>
+   灰盒（grey-box）：灰盒介于白盒和黑盒之间，能获取待测对象内部与运行过程中的部分信息，具有代表性的比如AFL，VUzzer等。能采用一些轻量级的静态分析作为辅助，或者采用覆盖率反馈来指导输入的生成，
+  </p>
+ </li>
+</ul>
+<p>
+</p>
+<p>
+ 根据输入的生成策略可以分为Mutation-based 和 generation-based；根据fuzzing运行时反馈类型可以分为：feedback 和 no-feedback；根据fuzzing的对象同样也可以进行分类：【这里引用2018年Computer &amp; Security期刊上论文A systematic review of fuzzing techniques的图】
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.8723404255319149" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhuWibV8qotOQ4LiasHaiaa7UZfUYibsWu6Hp8oibyMgAedvjcZH5jfnKKwIg/640?wx_fmt=png" data-type="png" data-w="470" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhuWibV8qotOQ4LiasHaiaa7UZfUYibsWu6Hp8oibyMgAedvjcZH5jfnKKwIg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 这么多不同类型的fuzzer，实际上流程都是类似的。通用的fuzzing测试过程可以用算法1来表示，对于待测目标，输入fuzz配置$C$和时间限制$t_{limit}$（可以是具体时间，也可以fuzz的轮数），经过预处理和后续循环执行，得到待测目标的bug集合。整个过程分为五部分：
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.5563063063063063" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhuUOibAl04GKIABCic1auFkyzzsUaDLMibPFibJMKrB2g0OBYpFmVO9fTWg/640?wx_fmt=png" data-type="png" data-w="444" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhuUOibAl04GKIABCic1auFkyzzsUaDLMibPFibJMKrB2g0OBYpFmVO9fTWg/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 1. Preprocess预处理部分：fuzzer会根据待测目标，对fuzz配置进行修正，以提高针对性。例如通过插桩等方式，使得在后续运行时能够收集fuzzing过程的信息作为反馈，又例如采用的快照方式，节省一些不必要的启动代码运行过程（AFL的folk server机制也是出于同样的考量，减少每次进程启动的开销）。另外，对于一些难以直接fuzz的待测对象，例如一些库、一些系统kernel或是IoT设备，需要准备一些驱动来对接交互。
+</p>
+<p>
+ 2. Schedule调度部分：会为当前fuzz轮次，选择合适的fuzz配置。一些简单的fuzzer，例如zzuf，它的默认模式仅允许一个配置，那么调度部分并不需要。而对于一些复杂的fuzzer，例如AFLFAST，它的调度算法是其效率的主要因素之一。对于白盒fuzzer，其调度更是常常涉及到符号算子，更加复杂。
+</p>
+<p>
+ 3. InputGen测试用例生成部分：生成当前轮次的fuzz输入。通常有generation-based和Mutation-based这两种策略。前者基于一个给定的模型（框定了待测对象期待的输入）来生成测试用例，后者对给定的种子输入做突变。通常来说，后者产生的输入更全面，但是由于缺乏规范，可能产生大量无效的输入。例如DOMfuzz、QuickFuzz、TLS-Attacker等fuzzer，针对特殊的语言、语法，于是建立了目标语言的模型便于生成有效的输入，又例如CodeAlchemist通过将JavaScript代码分解为“code bricks” ，然后计算汇编约束，从而能够将这些不同的bricks组成语义有效的测试用例。
+</p>
+<p>
+ 4. InputEval输入评估部分：通过运行当前输入，得到运行时信息以及bug信息。通常将由fatal signal导致的程序终止视作bug的触发。但一些错误，例如堆栈缓冲区溢出用有效的内存地址覆盖了堆栈上的指针，未必会crash，因此需要更细粒度的bug判定。例如使用address sanitizer检测内存错误（比如UAF漏洞），使用memory sanitizer来检测未定义的行为（比如c/c++中未初始化的内存导致的）。
+</p>
+<p>
+ 5. ConfUpdate配置更新部分：根据运行时信息，对fuzz配置进行更新。主要是对种子库进行更新，同时也保持最小的有效种子集合。
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者根据这五个部分，对现有对fuzzer进行了调查。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.2857142857142858" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhDS9DvGaQNjwQtWxMGjqY3lONA6c4S9TibubWg2KdNQmWH4vGciaNbzMQ/640?wx_fmt=png" data-type="png" data-w="553" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od91lLyAz5HjqdrC0UZxmYZhDS9DvGaQNjwQtWxMGjqY3lONA6c4S9TibubWg2KdNQmWH4vGciaNbzMQ/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者也对这些fuzzer的主要部分进行了现有技术路线的详细说明，想要进一步了解的读者们可以去读一下原文
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+</p>
+<p>
+ https://edmcman.github.io/papers/tse19.pdf
+</p>
+<p>
+ <br/>
+</p>
