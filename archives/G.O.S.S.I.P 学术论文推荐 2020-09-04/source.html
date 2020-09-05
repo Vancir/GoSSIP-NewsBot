@@ -1,0 +1,90 @@
+<p>
+ 今天我们为大家介绍的是Usenix Security 2020上一篇关于通过减少攻击面来降低安全风险的研究论文：
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.359466221851543" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3mgkoCajUeibnHx9IbucyKmOrNA4Ognt3CIOwoLWclv8cm3Qbl3brmgA/640?wx_fmt=png" data-type="png" data-w="1199" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3mgkoCajUeibnHx9IbucyKmOrNA4Ognt3CIOwoLWclv8cm3Qbl3brmgA/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者将研究目标集中在如何限定system call的使用上，提出了一种名为temporal specialization的技术，该技术将程序执行分为不同的phase，在每个phase有对应的system call黑白名单限定。temporal specialization技术建立在复杂的静态程序分析基础上，作者使用了大量程序分析技术来确定每个phase中使用的system call的范围，这种分阶段的system call使用管理，可以比传统的library debloating技术减少更多的非必要system call使用，从而降低安全风险
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.4169113329418673" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry30yeicibqEUMgvIQ1K2fbN97TuYqHLwicGBspia1libySdIRuYNEaITn4r1w/640?wx_fmt=png" data-type="png" data-w="1703" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry30yeicibqEUMgvIQ1K2fbN97TuYqHLwicGBspia1libySdIRuYNEaITn4r1w/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者指出，temporal specialization技术的核心是建立精确的call graph，作者根据下图的流程来获得每个phase准确的call graph，首先使用SVF这个框架进行指针分析，得到不精确的call graph（通常是过度估计），然后进行call graph pruning，具体包括两类pruning：Pruning Based on Argument Types和Pruning Based on Taken Addresses，最后生成seccomp filter
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.2935672514619883" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry36RWibh87iae507u4O0ic7GApqc4IzWbkjtGuAPaHfSJQgz8rbkUyKTmtw/640?wx_fmt=png" data-type="png" data-w="1710" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry36RWibh87iae507u4O0ic7GApqc4IzWbkjtGuAPaHfSJQgz8rbkUyKTmtw/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 通过两类pruning，temporal specialization技术可以将call graph精确化，这样就方便生成一个更严格的filter，过滤更多不必要的system calls
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.3245305164319249" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3mHpwOjTIGb50oZYG8LmS6kRbMsY9Bj2juRHEbvgOavNH8dgw9rLHoA/640?wx_fmt=png" data-type="png" data-w="1704" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3mHpwOjTIGb50oZYG8LmS6kRbMsY9Bj2juRHEbvgOavNH8dgw9rLHoA/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.7364341085271318" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3icjYrcXh6Rlhy3Z9UGZW7RHZORL9OZcvWLb6DOqpMhArZ3Xypn3iaZtQ/640?wx_fmt=png" data-type="png" data-w="645" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3icjYrcXh6Rlhy3Z9UGZW7RHZORL9OZcvWLb6DOqpMhArZ3Xypn3iaZtQ/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者实验表明，purning对call graph的限定还是很有效果的：
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.5609375" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3QnO5e9uhH54icFSebiaVGur976RGqUwicEFOubbcJvJUIRibzkzWNqZqFQ/640?wx_fmt=png" data-type="png" data-w="640" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3QnO5e9uhH54icFSebiaVGur976RGqUwicEFOubbcJvJUIRibzkzWNqZqFQ/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ 同传统的比较保守的过滤相比，temporal specialization技术明显可以过滤更多的system calls
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.6396103896103896" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3icwXtJyon4Ye9lib6nvCFjuPwe6NQYxrZXicVJoVxlgicc2KGkUzsiaPic5g/640?wx_fmt=png" data-type="png" data-w="616" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3icwXtJyon4Ye9lib6nvCFjuPwe6NQYxrZXicVJoVxlgicc2KGkUzsiaPic5g/640?wx_fmt=png" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.6104928457869634" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3usiaWP1nWD7fIibGfvehibZvPprGTulTQayjJLpxYZ8O4Giav4lsJGiaibag/640?wx_fmt=png" data-type="png" data-w="1258" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3usiaWP1nWD7fIibGfvehibZvPprGTulTQayjJLpxYZ8O4Giav4lsJGiaibag/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.35313001605136435" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3FGPEC8iapRnSiaoyReRkDawy9umaxSEImYHAWyZ8uhfbW8hDuIxjoI2w/640?wx_fmt=png" data-type="png" data-w="1246" src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od95XsVj0vU4xpxH9KWicyry3FGPEC8iapRnSiaoyReRkDawy9umaxSEImYHAWyZ8uhfbW8hDuIxjoI2w/640?wx_fmt=png" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+</p>
+<p>
+ https://www3.cs.stonybrook.edu/~mikepo/papers/temporal.sec20.pdf
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 项目开源代码：
+</p>
+<p>
+ https://github.com/shamedgh/temporal-specialization
+</p>
