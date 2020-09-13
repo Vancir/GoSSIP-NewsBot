@@ -68,7 +68,8 @@ def download(url, outdir):
 def fixWxHtmlImg(soup):
     # add src attribute to img tag
     for img in soup.find_all("img"):
-        img["src"] = img["data-src"]
+        if "data-src" in img:
+            img["src"] = img["data-src"]
     
 def removeInvalidTags(soup):
     # remove invalid tags but keep content
