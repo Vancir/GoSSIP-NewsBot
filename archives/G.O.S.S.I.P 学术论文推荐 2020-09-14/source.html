@@ -1,0 +1,203 @@
+<p>
+ 我们知道在HTTPS应用的过程中，Let's Encrypt免费证书大大推进了HTTPS的普及，今天我们给大家介绍一篇NDSS 2020上的论文，介绍了一套证书撤销机制Let's Revoke，
+ <strong style="white-space: normal;">
+  我们会在9月15日中午12点（北京时间）直播本论文的讨论会，欢迎大家收听，腾讯会议的会议 ID：180 866 275
+ </strong>
+ ，
+ <strong style="white-space: normal;">
+  入会链接 https://meeting.tencent.com/s/wn4PxLyJxJSV
+ </strong>
+ ：
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.34134615384615385" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HFBQDvXaOEVWJ0K9j5k4k5htUQRYkefBTJtv2OtdaN1UvdMAWVaibPrUA/640?wx_fmt=png" data-type="png" data-w="1040" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <strong>
+  <br/>
+ </strong>
+</p>
+<p>
+ 在本论文中，作者设计了Let’s Revoke证书撤销机制，并对该机制进行了全面的评估。
+ 结果表明，该机制与其他机制相比需要更少的存储和网络带宽。
+</p>
+<p>
+</p>
+<h2 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 0.3em;border-bottom:="" 1.25;margin-top:="" 1.5em;padding-bottom:="" 16px;font-size:="" 1px="" 238);letter-spacing:="" 238,="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="13" data-startline="13" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(238,="" rgb(255,="" roboto,="" sans-serif,="" segoe="" solid="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+</h2>
+<h2 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 0.3em;border-bottom:="" 1.25;margin-top:="" 1.5em;padding-bottom:="" 16px;font-size:="" 1px="" 238);letter-spacing:="" 238,="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="33" data-startline="33" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(238,="" rgb(255,="" roboto,="" sans-serif,="" segoe="" solid="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ LET’S REVOKE SYSTEM DESIGN
+</h2>
+<h3 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 1.25;margin-top:="" 1.25em;letter-spacing:="" 16px;font-size:="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="36" data-startline="36" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ Design Description
+</h3>
+<h4 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 1.25;margin-top:="" 16px;letter-spacing:="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="38" data-startline="38" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ 数据结构：
+</h4>
+<ul "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" class="list-paddingleft-2" color="" data-endline="46" data-startline="40" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="margin-bottom: 16px;padding-left: 2em;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <li style="box-sizing: border-box;">
+  <p style="box-sizing: border-box;margin-top: 16px;margin-bottom: 16px;">
+   Revocation IDs
+   <br style="box-sizing: border-box;"/>
+   用来标识一张证书的撤销情况。举例，
+   Let’s Encrypt : March 1, 2018 : 24561
+   <br style="box-sizing: border-box;"/>
+   包含了三个部分，前两个部分是颁发的CA和过期的日期，第三部分是过期编号。撤销编号由CA指定。
+  </p>
+ </li>
+ <li style="box-sizing: border-box;margin-top: 0.25em;">
+  <p style="box-sizing: border-box;margin-top: 16px;margin-bottom: 16px;">
+   Certificate Revocation Vectors（
+   <strong>
+    CRV
+   </strong>
+   ）:
+   <br style="box-sizing: border-box;"/>
+   Let’s Revoke维护了一个CRV的数据库。CRV使用一个比特位来标识证书的状态。
+  </p>
+ </li>
+</ul>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="47" data-startline="47" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ CA的操作 &amp; 客户端的操作
+ <br/>
+</p>
+<ul "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" class="list-paddingleft-2" color="" data-endline="53" data-startline="50" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="margin-bottom: 16px;padding-left: 2em;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <li style="box-sizing: border-box;">
+  <p>
+   ADD 方法 CA生成撤销的列表，客户端使用ADD方法添加到本地
+  </p>
+ </li>
+ <li style="box-sizing: border-box;margin-top: 0.25em;">
+  <p>
+   OR 方法 CA使用OR方法对数据库进行更新
+  </p>
+ </li>
+ <li style="box-sizing: border-box;margin-top: 0.25em;">
+  <p>
+   NEW 方法 使用NEW方法进行备份
+  </p>
+ </li>
+</ul>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="54" data-startline="54" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 要检查证书的吊销状态，客户端首先访问由证书的颁发CA和到期日期指示的正确CRV。然后，客户端通过验证索引RN上的位来确定证书的吊销状态。
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="57" data-startline="56" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 下图
+ 所
+ 示
+ 的是一个例子：
+ <br style="box-sizing: border-box;"/>
+ <img data-ratio="0.6394187102633969" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HFOhCibjLwIWhScw9ZtFsroXPSItdicuxIfvyHvibjicJ6wMcia776S5HqicEg/640?wx_fmt=png" data-type="png" data-w="1101" style="box-sizing: content-box;border-width: 0px;border-style: initial;border-color: initial;vertical-align: middle;background-color: transparent;cursor: zoom-in;"/>
+</p>
+<h3 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 1.25;margin-top:="" 1.25em;letter-spacing:="" 16px;font-size:="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="59" data-startline="59" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ <br/>
+ <br/>
+</h3>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="64" data-startline="64" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 对于证书的更新，Let 's Revoke支持三种用于更新的方法，并且一般选择最小化带宽成本的方法。如果撤销的总数小于0.1%，就使用ADD方法，如果超过了一般，就会使用NEW方法，对于其他的情况使用OR方法。该方法节省了更新证书时所需的网络带宽。
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="67" data-startline="67" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <img data-ratio="0.42303664921465967" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HFicGSPRE9xOVOVOAlKIWMwg4JBpwfgxTxccsUaCqeVp50oQRfIg2fAZQ/640?wx_fmt=png" data-type="png" data-w="955" style="box-sizing: content-box;border-width: 0px;border-style: initial;border-color: initial;vertical-align: middle;background-color: transparent;cursor: zoom-in;"/>
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" center;white-space:="" color="" data-endline="71" data-startline="71" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 作者还探讨了多个CA设置CRV之间的影响，结果表明，他们之间不会产生影响CA。
+ <img data-ratio="0.6157112526539278" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HFX8jHEfrjEpjIrfIaLZNLqwAnqvDbfBRlAKXJ4MHM379WzLj5ZYB1KQ/640?wx_fmt=png" data-type="png" data-w="471" style="box-sizing: content-box;border-width: 0px;border-style: initial;border-color: initial;vertical-align: middle;background-color: transparent;cursor: zoom-in;"/>
+</p>
+<h3 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 1.25;margin-top:="" 1.25em;letter-spacing:="" 16px;font-size:="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="75" data-startline="75" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ <br/>
+</h3>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="77" data-startline="77" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <br/>
+</p>
+<h2 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 0.3em;border-bottom:="" 1.25;margin-top:="" 1.5em;padding-bottom:="" 16px;font-size:="" 1px="" 238);letter-spacing:="" 238,="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="79" data-startline="79" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(238,="" rgb(255,="" roboto,="" sans-serif,="" segoe="" solid="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ COMPARING REVOCATION STRATEGIES
+</h2>
+<h3 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 1.25;margin-top:="" 1.25em;letter-spacing:="" 16px;font-size:="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="81" data-startline="81" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+</h3>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="83" data-startline="83" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 作者的评估标准主要是设备存储和网络。结果如表二所示。
+ 虽然前三种方法所需要的存储空间较小，但是不能覆盖所有的撤销情况。
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" center;white-space:="" color="" data-endline="88" data-startline="88" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <img data-ratio="0.42303664921465967" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HFicGSPRE9xOVOVOAlKIWMwg4JBpwfgxTxccsUaCqeVp50oQRfIg2fAZQ/640?wx_fmt=png" data-type="png" data-w="955" style="box-sizing: content-box;border-width: 0px;border-style: initial;border-color: initial;vertical-align: middle;background-color: transparent;cursor: zoom-in;"/>
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="91" data-startline="91" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 图3总结了所有撤销百分比的存储需求，而图4显示了在日常使用中可能发现的撤销百分比较低时的比较。
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" center;white-space:="" color="" data-endline="93" data-startline="93" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <img data-ratio="1.7697516930022574" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HF0aQGwz4cEooJc9WudibpA3ufMeC2qsybZ6Qm2fkicaDvGwoSgwGN0I5A/640?wx_fmt=png" data-type="png" data-w="443" style="box-sizing: content-box;border-width: 0px;border-style: initial;border-color: initial;vertical-align: middle;background-color: transparent;cursor: zoom-in;"/>
+</p>
+<h3 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 1.25;margin-top:="" 1.25em;letter-spacing:="" 16px;font-size:="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="97" data-startline="97" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+</h3>
+<h2 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 0.3em;border-bottom:="" 1.25;margin-top:="" 1.5em;padding-bottom:="" 16px;font-size:="" 1px="" 238);letter-spacing:="" 238,="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="117" data-startline="117" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(238,="" rgb(255,="" roboto,="" sans-serif,="" segoe="" solid="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ VIABILITY SIMULATIONS
+</h2>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="119" data-startline="119" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 为了进一步验证CRV的性能，作者进行了吊销模拟，以表明CRV可以用于日常证书撤销检查，并可以扩展用于大规模撤销事件和数量更大的证书空间。
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="122" data-startline="121" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 作者使用Censys.io收集了截至2018年3月21日的全球证书空间的相关吊销数据。作者首先删除了重复的，过期的，私有的，无效的证书来过滤此数据集，保留了8410万个证书。其次，作者将具有CRL节点的证书与仅具有OCSP节点的证书分开。作者确定了475个没有任何撤销终结点的不可撤销证书，并将它们也从数据集中删除。最后，作者扫描了其余证书以确定它们的撤销状态。
+ <br style="box-sizing: border-box;"/>
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="122" data-startline="121" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <br/>
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" center;white-space:="" color="" data-endline="125" data-startline="125" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <img data-ratio="0.5756207674943566" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HF505icYWU0EA4eySVsanYRfRw9MyjJekChfObypBSSmM0nU7x4Xic5OZA/640?wx_fmt=png" data-type="png" data-w="443" style="box-sizing: content-box;border-width: 0px;border-style: initial;border-color: initial;vertical-align: middle;background-color: transparent;cursor: zoom-in;"/>
+</p>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="127" data-startline="127" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 作者考察了以下几个方面：
+</p>
+<ul "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" class="list-paddingleft-2" color="" data-endline="131" data-startline="128" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="margin-bottom: 16px;padding-left: 2em;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <li style="box-sizing: border-box;">
+  <p>
+   当前撤销的空间 经过压缩和优化以后，大小为5MB，且每次更新只需要25KB。
+  </p>
+ </li>
+ <li style="box-sizing: border-box;margin-top: 0.25em;">
+  <p>
+   大规模撤销的情况 作者模拟了heartbleed事件而导致大规模证书撤销的情况，并发现存储需求增加到10.8MB，带宽为每天150KB。
+  </p>
+ </li>
+ <li style="box-sizing: border-box;margin-top: 0.25em;">
+  <p>
+   日益增长的撤销空间 Let’s Revoke能够随着不断增长的证书空间优雅地伸缩。
+  </p>
+ </li>
+</ul>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" center;white-space:="" color="" data-endline="132" data-startline="132" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <img data-ratio="0.6158798283261803" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odic9d53GwFOHoGpKqTFcm3HFQB8FNUTfAwjbL7rYo3ibrfbVCicf4bb2zbxKf3BfjNelAcyCc6Ut8FlA/640?wx_fmt=png" data-type="png" data-w="466" style="box-sizing: content-box;border-width: 0px;border-style: initial;border-color: initial;vertical-align: middle;background-color: transparent;cursor: zoom-in;"/>
+</p>
+<h2 "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 0.3em;border-bottom:="" 1.25;margin-top:="" 1.5em;padding-bottom:="" 16px;font-size:="" 1px="" 238);letter-spacing:="" 238,="" 24px;margin-bottom:="" 255);"="" 255,="" 600;line-height:="" arial,="" color="" data-endline="135" data-startline="135" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(238,="" rgb(255,="" roboto,="" sans-serif,="" segoe="" solid="" start;white-space:="" style="box-sizing: border-box;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-weight:="" ui="" ui",="">
+ SECURITY ANALYSIS
+</h2>
+<p "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" color="" data-endline="137" data-startline="137" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="box-sizing: border-box;margin-bottom: 16px;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ 作者进行了安全性分析。作者假设了一个威胁模型，活跃的网络攻击者可以在其中创建，修改和阻止消息。攻击者有两个目标：(1)强制客户接受已撤销的证书;(2)强制客户认为有效的证书已被撤销。
+</p>
+<ul "apple="" "helvetica="" "segoe="" 0.35px;text-align:="" 16px;letter-spacing:="" 255);"="" 255,="" arial,="" class="list-paddingleft-2" color="" data-endline="142" data-startline="139" emoji",="" helvetica,="" neue",="" normal;background-color:="" rgb(255,="" roboto,="" sans-serif,="" segoe="" start;white-space:="" style="padding-left: 2em;font-family: -apple-system, BlinkMacSystemFont, " symbol";font-size:="" ui="" ui",="">
+ <li style="box-sizing: border-box;">
+  <p style="box-sizing: border-box;margin-top: 16px;margin-bottom: 16px;">
+   Accept a Revoked Certificate
+   攻击者可以通过阻止客户端更新CRV并得知证书已被吊销，来迫使客户端接受吊销的证书。攻击者实现攻击有两种方法：首先可以通过修改CRV来隐藏历史撤销信息，但是在Let’s Revoke机制下，客户端通过在每次更新时比较CRV来保证保留了先前的撤销；其次是阻止CA的流量，但是由于Let’s Revoke是基于推送机制的，一旦CA不能及时更新，便可被发现。
+  </p>
+ </li>
+ <li style="box-sizing: border-box;margin-top: 0.25em;">
+  <p style="box-sizing: border-box;margin-top: 16px;margin-bottom: 16px;">
+   Revoke a Valid Certificate
+   攻击者还可以强迫客户相信有效证书已被撤销。攻击者实现攻击有两种方法：首先是获得证书的所有权，在这种情况下攻击者需要知道证书的私钥；其次是修改CRV，但是如前面所述，这种情况无法实现。
+  </p>
+ </li>
+</ul>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+ <br/>
+</p>
+<p>
+ https://www.ndss-symposium.org/wp-content/uploads/2020/02/24084.pdf
+</p>
