@@ -1,0 +1,109 @@
+<p>
+ 今天给大家推荐的这篇来自软工顶会ICSE 2020的论文，是由深圳大学、蚂蚁金服、南洋理工大学的研究人员进行的fuzzing研究，同时其相关代码也得到了Artifacts Available和Artifacts Evaluated Reusable的认证。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.4484629294755877" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxicXaPd9lAb5UpQRwlkzG7qicLXjCiat9fEeNxibBZ2skKCia4z39lIcVdhA/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p style="text-align: center;">
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 这篇文章设计并实现的fuzzer也是一种灰盒的基于覆盖率反馈的fuzzer，但与之前AFL系列的fuzzer不同，MemLock旨在对内存消耗（memory consumption）漏洞进行检测。内存消耗漏洞指的是软件没有合理地控制有限资源的分配和维护，从而使参与者可以影响消耗的资源量，最终导致可用资源的耗尽，例如DoS攻击。
+</p>
+<p>
+</p>
+<p>
+ 目前缺乏针对性研究，已有相关研究（例如SlowFuzz，Perf-Fuzz和ReScue）主要针对时间复杂度的异常输入，而没有对内存消耗这种空间复杂度的问题进行研究。而且内存消耗漏洞不仅依赖于程序执行路径，还依赖于内存消耗这一程序状态，导致已有的覆盖率反馈的fuzzer无法有效解决这种问题。
+</p>
+<p>
+</p>
+<p>
+ 本文中作者针对三类内存消耗bug进行研究：（1）uncontrolled-recursion（不受控制的递归耗尽堆栈内存）；（2）Uncontrolled-memory-allocation（基于不可信的大小值分配内存导致任意大小内存消耗）；（3）memory leak（跟踪和释放分配的内存导致的内存泄露）。作者的方法架构如图3所示，分为静态分析和fuzzing循环两个部分。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7341772151898734" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxDCVyNARkeYHvic0yYyAvexv4ic7Z8LrpFwoQ305NPWCIkzsBvME9ygyA/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 静态分析过程中，作者通过生成控制流图、call graph和内存使用操作来进行后续的插桩。控制流图用于计算分支覆盖率（与AFL类似），call graph用于监控函数调用的堆栈内存消耗（作者在函数的入口和出口都进行了插桩），内存使用操作用于计算函数内的内存消耗。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.1699819168173597" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxqzdcGibWXerSCEBp7rhPricvxibRaEeficjib4MkWtTShaqaMUmBRotjLtw/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ MemLock的fuzzing过程如算法1所示，可以看到与常规的基于覆盖率反馈的fuzzer不同，MemLock除了分支覆盖率，还有fm（最大函数内存）、om（最大操作内存）这两个反馈来影响种子集合的更新与种子的选择。这些反馈的计算就是借助静态分析时做的插桩工作。对应地，作者也设计了一套动态种子更新策略，对于产生新路径或更大内存消耗的种子，会进行更多的突变并提高选择概率，以此更好地指导fuzzer。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.569620253164557" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxGLUrKpKCjpouVCGJAsLeDwFwV9Uz0aquaOblR2fhd8A0LbnZ8iaLSXQ/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 最后，作者使用一组开源的程序进行评估，将MemLock与AFL、AFL Fast、QSYM等诸多fuzzer进行了对比，MemLock发现的unique crash、漏洞数量和速度都有明显优势，尤其是在内存消耗漏洞方面，且其生成的测试用例通常导致150倍的内存消耗。作者也获得了获得了15个CVE。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.4358047016274864" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxoCfeSHtoM616XoLhI4aRhUOw8Tm2QnZhGEk8YyxaKJicfq24F9dPfZA/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p style="text-align: center;">
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.755877034358047" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxmj62nQ8DEoSbHjZhGhDWPg7npic9X5pzErOKC5mTDuy5BLo78hDQzRQ/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.8191681735985533" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxh9FK4PLsDC28dAae9geLUYCGDgg2vLPcwiar2zmZW03AaxD1p7gZRQQ/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.45569620253164556" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxIiaWMDBjjHSibiamKicUvzwuTSOJrgetbnx56Qdyk4t2jT9rIw5RmHcQsA/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.24773960216998192" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odib9xicoaV6fZuXib4LicPnfUoxE14fqnnvkU0wxM7j3bch5xYPIWMfRnqWPicLSDzS3bZWWOGAmrZEjpw/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 原文地址：https://wcventure.github.io/pdf/ICSE2020_MemLock.pdf
+</p>
+<p>
+ <br/>
+</p>

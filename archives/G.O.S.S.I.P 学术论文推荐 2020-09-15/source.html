@@ -1,0 +1,105 @@
+<p>
+ 今天我们给大家推荐的论文是中科院出品的关于漏洞检测的Usenix Security 2020研究论文
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.30198915009041594" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABAUMCoxteyibefRAObw3gCRPjtHrPff8aHItkXrBib71PCeWcfFcAGASUg/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 与单纯的漏洞检测视角不同，这篇论文着眼于漏洞及其补丁，旨在以较高的精度实现对recurringvulnerabilities（重复出现的漏洞）的检测。Recurring vulnerability就是指在不同版本或系统中出现的未被及时修补的漏洞，通常是由于重用的代码库和共享的代码逻辑导致的。
+</p>
+<p>
+</p>
+<p>
+ 这类漏洞的检测过程中涉及到三类对象，分别是vulnerable function（V），patched function（P）和target function（T）。目前有两类方法进行检测：clone-based和function matching-based。然而由于V、P之间较高的相似性以及V、T之间较低的相似度，导致这两种方式存在较高的误报和漏报。
+</p>
+<p>
+</p>
+<p>
+ 为了提升recurring vulnerability检测的精度，作者将security patch纳入考虑，通过程序切片从vulnerable function及patched function中提取语法和语义级别上的漏洞、补丁签名，然后将与漏洞签名匹配但与补丁签名不匹配的目标函数标记为潜在漏洞。该方法的流程如图2所示，基于该方法，作者实现MVP (Matching Vulnerabilitieswith Patches)工具。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.7563451776649747" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABAliccRqDn3Q2libAQfnNcUh9PBqY5ILEbccna766f8yzTSDK8v4deetIg/640?wx_fmt=png" data-type="png" data-w="394" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 作者设计的函数签名获取主要有三个步骤：
+</p>
+<ol class="list-paddingleft-2" style="list-style-type: decimal;">
+ <li>
+  <p>
+   首先解析代码并生成code property graph【出自S&amp;P’14的Modeling and discovering vulnerabilities with code property graphs】，这种graph集合了抽象语法树（AST）、控制流图（CFG）和程序依赖图（PDG）；
+  </p>
+ </li>
+ <li>
+  <p>
+   进行函数的抽象和规范化，即识别出AST中的形式参数、局部变量和字符串，使用PARAM、VARIABLE和STRING替代；
+  </p>
+ </li>
+ <li>
+  <p>
+   生成函数签名，这里的函数签名设计中，作者结合了函数的statements及其之间的依赖关系。
+  </p>
+ </li>
+</ol>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.3689095127610209" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABABFsvr8CHoBccTib0Xibxxp11iazT1aU84qUgbRODZib9tl84SQnhZLLopQ/640?wx_fmt=png" data-type="png" data-w="431" style=""/>
+</p>
+<p style="text-align: center;">
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.6882716049382716" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABA8Khy6KSGVicNEWAkdGzPotc45UdZS6yQUCzdtouTaibicA1pvTlibptmSw/640?wx_fmt=png" data-type="png" data-w="324" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 对于漏洞与补丁的签名生成，首先需要从commits中找到补丁修改的函数，然后在函数的statement级别进行分析，在PDG上进行后向的程序切片和与slicing criterion类型相关的前向切片，尽可能准确地找到安全补丁及对应的漏洞。最后，依据下面的公式计算漏洞和补丁的签名：
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.4634146341463415" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABAFpibHzNbPpEBPibK3tSrI7m0XryRxefs4UnMO1pLMsJ43dK5lyemxDhA/640?wx_fmt=png" data-type="png" data-w="287" style=""/>
+</p>
+<p>
+ 作者在包含25377个安全补丁的十个开源系统对MVP进行了评估，并且与state-of-the-art方法进行了对比，包括clone-based方法（ReDeBug和VUUDY）、function matching-based方法（SourcererCC和CCAligner）、learning-based（VulDeePecker和Devign）以及商用工具（Coverity和Checkmarx）。结果显示，MVP在精度上明显优于clone-based和function matching-based漏洞检测方法，且MVP检测到的一些漏洞无法通过learn-based和商用的两种工具借助通用漏洞检测方法来检测。最后，MVP检测到97个新漏洞，并分配到了23个CVE。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.26582278481012656" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABANlTPvoE8GHIYZLCOKIXUibLBIWNUc3IEvPynibrTwFffWaGVwVw9boLA/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.2549728752260398" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABAg5k0oDCYMpIZ34e9ysheKJLT4wZlsmUgQdeFBNRe4LgibNceuQvoMEg/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.2694394213381555" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABAFKDXdG84CicQvhH8UWanzrcbBO5icMf1icuI8ImbK8jbet9KsAgKdp5NQ/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.484629294755877" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABAU6AkoRuIkugHKGYvYkKmPJMUpPves2EP6eHgZoaFvpyQkfVfmfWFQQ/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p style="text-align: center;">
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.5352622061482821" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9vJA2vQhOcaDyiboMiaA4ABA1dnwNibIQWNNspoYicQpHXMvNgy6X6fVNgmia9ZibIYtt8BZVGU9tGvxKg/640?wx_fmt=png" data-type="png" data-w="553" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 论文PDF：
+</p>
+<p>
+ https://www.usenix.org/system/files/sec20-xiao.pdf
+</p>
