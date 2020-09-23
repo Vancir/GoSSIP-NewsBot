@@ -1,0 +1,87 @@
+<p>
+ 上周9月17日我们推荐的论文MemLock是针对内存消耗漏洞的fuzzer，今天我们推荐的这篇来自RAID 2020的论文则是针对内存破坏漏洞中的UAF类型漏洞。
+</p>
+<p>
+ <img data-ratio="0.3108433734939759" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkAQsuQb8oO9icYSbuNvq6uhXfADicmkIzs1AbP1dH4N8g1JiaMbvMtmTOw/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ Use-After-Free (UAF)漏洞是由于内存释放后对应的指针没有被清除，导致其成为一个悬空指针（dangling point），有可能被攻击者利用。具体来说，一个UAF漏洞表现为对于同一个内存对象的分配（alloc）、释放和使用（通常是dereference），例如list-1的例子。
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <img data-ratio="0.21686746987951808" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYktvUzY1XqcJ6UjM2cn7lCYicUsoO6Um3zUUtnlrAtiaflm14JQUPbCvUw/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ 目前的fuzzer在针对UAF的检测上仍然存在困难：由于UAF本身的复杂性，其alloc、free、use需要对同一内存对象的有序访问，coverage-based对于fuzzer的指导就不再奏效，Directed fuzzer缺乏对次序的考虑也无法取代好的效果；而且UAF未必会产生crash，这使得很多fuzzer难以发现。于是作者就研究了Binary-level Directed Fuzzing的技术UAFUZZ，其大体结构如图2所示。
+ <img data-ratio="0.33116883116883117" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkjoffITQ3R3picRVWc8E0oCovsPeggZtbBtWEQlqAveQoRpicic0SgUKhw/640?wx_fmt=png" data-type="png" data-w="616"/>
+</p>
+<p>
+ <img data-ratio="0.42178770949720673" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkiapy1OhMJiblZ1SIUOSyYbCRejuRAyuYGiaOLvaPUVtJ6NEYouktFWtXA/640?wx_fmt=png" data-type="png" data-w="716"/>
+</p>
+<p>
+ 在插桩阶段，UAFUZZ作为directed fuzzer，在VALGRIND生成的bug trace上做了扁平化作为target，从而适配轻量级的插桩及fuzzing，如图1到图5的转化。
+</p>
+<p>
+ <img data-ratio="0.7590361445783133" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkePgiaSPloPxzicYCZAZdXtDibseKNSfcbNK5cswEzWMfg3oOG347Jgclg/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ <img data-ratio="0.6096385542168675" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkLYbPOc8LzR0a1NFBTzJlLMxDfb74OP1bLicgPnCdIsnIRDSmiaPlTm1g/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ 在fuzzing过程中，作者设计了三种metric：
+</p>
+<ol class="list-paddingleft-2" style="list-style-type: decimal;">
+ <li>
+  <p>
+   Target Similarity Metrics，用于衡量种子的执行路径和目标UAF的bug trace之间的相似性，分为图4中的四种粒度，并组合成P-3TP-B metric。
+  </p>
+ </li>
+ <li>
+  <p>
+   UAF-based Distance Metric：与传统的距离计算方式不同，UAFUZZ除了考虑常规的call graph中的调用关系，还考虑了调用次序（降低这些alloc、free、use之间的edge权重），如图5所示，降低了红色edge的权重。
+  </p>
+  <p>
+   <img data-ratio="0.3686746987951807" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkdIOnNNn9VFcwtp3EBcXXiaMFdcYz9iac4ic4SIO96TPl6Kza4PtrQic34g/640?wx_fmt=png" data-type="png" data-w="830"/>
+  </p>
+ </li>
+ <li>
+  <p>
+   Cut-edge Coverage Metric：对于coverage来说，通常会在基本块层面进行计算，但是这样开销过大，而仅从函数层面又精度过低。于是UAFUZZ中和这两种方式，仅计算关键决策节点（也就是条件跳转）的edge层面覆盖率，具体如算法3、4所述。
+  </p>
+  <p>
+   <img data-ratio="1.1036144578313254" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkeC3B2GVmyGNeYmblW1RwQeia6FSUhNNKIx60iab1Q3XfEjfwFstAXu1A/640?wx_fmt=png" data-type="png" data-w="830"/>
+  </p>
+ </li>
+</ol>
+<p>
+ 于UAF错误缺乏明显现象，因此必须将directed fuzzer生成的所有种子预先发送到bug分类程序（如VALGRIND），以确认它们是否是bug触发输入，但大量的种子会产生大量开销。UAFUZZ利用target Similarity来预先选出可能触发bug的种子，仅对这些种子进行bug分类，大量减小了时间开销。最后，UAFUZZ的实现如图6所示。
+</p>
+<p>
+ <img data-ratio="0.5469879518072289" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkC1CGCcM8Ck2CibxqgCLwmLoKolQ6Qz9l6gicAZIybhUtdwdllroqgGNQ/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ 文章针对bug reproduction，对比一些state-of-the-art的directed fuzzer，展开了评估，在故障检测率、暴露时间、错误分类方面，UAFUZZ都有显著的优势。而且UAFUZZ在补丁测试方面，在Perl、GPAC和GNU中发现了30个新的bug（其中7个CVE）。最后作者也开源了一个专门针对UAF的fuzzing的大型benchmark：https://github.com/strongcourage/uafbench
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <img data-ratio="0.9975903614457832" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYk9jXaYngHUrzFMial3bIanibz4KLb1tytj2tQ7yuFOGKyZRSQD7xicr5OQ/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ <img data-ratio="0.42168674698795183" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkJL8j6SvviaV0ZCwDAw3S6LGhanqP79lHoq18DrvXoK662Ihkjsicic8nw/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ <img data-ratio="0.8626506024096385" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6odicU2kEOibQR36JarxwlbibkYkGgJ0vngnCr396yBLxqV2056OoScM1bH84Trrule6o1I930iaicMKPUdw/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ 原文链接：https://arxiv.org/pdf/2002.10751.pdf
+</p>
+<p>
+ <br/>
+</p>
