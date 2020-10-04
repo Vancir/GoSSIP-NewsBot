@@ -1,0 +1,80 @@
+<p>
+ 本文中，作者对TrustZone-assisted TEE Systems中存在的安全问题进行了研究，整理了目前各种TEE的实现中所存在的Attack Surface，并对出现的漏洞进行了归类、讨论了TrustZone-assisted TEE Systems中的缓解措施。文中对比了Qualcomm, Trustonic, Huawei, Nvidia, and Linaro的TEE实现。
+</p>
+<p>
+ <img data-ratio="0.2289156626506024" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxqAo0tlmSe45E9lryTiaIr6Dm5RZFmhH34W0lSLQbTeic856UHa6vny9A/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ Compromising the TEE kernel：攻击者可以通过两条路线攻陷TEE kernel：
+</p>
+<p>
+ - REE App→Android OS→Secure Monitor→TEE Kernel;
+</p>
+<p>
+ - REE App→TA→TEE Kernel
+</p>
+<p>
+ Compromising the REE kernel: REE App→TA，攻击者在compromised TA中可以map NW物理内存，以修改被Linux kernel分配的内存。
+</p>
+<p>
+ <img data-ratio="0.653012048192771" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxa5jdHjnwfGyiahrKkL6ice7Y7bHICfAn7ribIVKlbUN2kA1bI9ArHng7Q/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ 作者研究了数个TEE的实现：Qualcomm, Trustonic, Huawei, Nvidia, and Linaro
+</p>
+<p>
+ <img data-ratio="0.4943820224719101" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxLXmtWjEhhKicJy2F6OmFHkmxQF9TjevNS72yj0u8nGHHMqbSSyIPntg/640?wx_fmt=png" data-type="png" data-w="534"/>
+</p>
+<p>
+ <img data-ratio="0.644" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxy2C34YIckp6bxp9ZDvRP0jbMHbEd9XKXkoGpnKvjDeDymtZibJ95icQA/640?wx_fmt=png" data-type="png" data-w="500"/>
+</p>
+<p>
+ 作者总结发现其中三个主要的攻击面：
+</p>
+<p>
+ - Architectural （eg. 没有ASLR）
+</p>
+<p>
+ - Implementation （e.g. 实现上的漏洞，buffer overflow）
+</p>
+<p>
+ - Hardware （e.g. side-channel）
+</p>
+<p>
+ <img data-ratio="0.4989270386266094" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxk8PE3M8aYJJjcDXibSNKiaOmGvzXde6DWc0jHDF5T2iakly1WrF23oNJw/640?wx_fmt=png" data-type="png" data-w="932" height="207" width="415"/>
+ <img data-ratio="0.9332627118644068" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxYhaBMQbqXiaMMQAK591EP68iaKhw0Cuq4TiaA6Gc1P0P66IOOInpLw4lQ/640?wx_fmt=png" data-type="png" data-w="944" height="387" width="415"/>
+ <img data-ratio="0.7450549450549451" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRx5FicHUPljCNzy4zCjLJQWiaoobNQUYhz7f2HVyd4RKa4UDBJYJ6m9WEA/640?wx_fmt=png" data-type="png" data-w="455" height="169" width="227"/>
+ <img data-ratio="1.0201729106628241" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxdUIrd0mAY90jiadibZoe8h5d1X0I1UszHChaxibhIjLgkEAnpy2eYTiaLQ/640?wx_fmt=png" data-type="png" data-w="1388" height="423" width="415"/>
+</p>
+<p>
+ 例如Microarchitectural Side-Channels层面有三类问题：
+</p>
+<ol class="list-paddingleft-2" style="list-style-type: decimal;">
+ <li>
+  <p>
+   Leaking information through caches，在TrustZone-enabled处理器上，cache是被secure world和normal world共享。目前已有成功从cache中恢复128bit AES密钥。
+   <br/>
+  </p>
+ </li>
+ <li>
+  <p>
+   Leaking information through branch predictor，现代处理器中有branch target buffer (BTB)用于分支预测，被SW和NW共享，可以通过Prime+Probe leak敏感信息。已有攻击从Qualcomm上的kerstore恢复出256-bit私钥。
+  </p>
+ </li>
+ <li>
+  <p>
+   Leaking information using Rowhammer，Rowhammer是一种利用软件引起硬件错误，从而影响DRAM的技术。允许攻击者控制内存读操作，反转物理内存中的bits。当TEE中的RSA private被分配在secure/no-secure内存边界处时，可以在no-secure边界频繁读，造成在secure引入错误，从而corrupt private keys。
+  </p>
+ </li>
+</ol>
+<p>
+ <img data-ratio="0.5591958302308265" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRxblX1TPR0H3yLKnJ0rOX5Iv4k10rHWxVISgxwsialFa4yibW3tmVc0xIw/640?wx_fmt=png" data-type="png" data-w="1343" height="232" width="415"/>
+ <img data-ratio="0.4880054832076765" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od9hTnEryFlHoGN3OGWudvRx50ol01ytgFiaI4LWaFxCTucDTaOf7qon9fBQx0ch6PM1zxyPfibib35Hw/640?wx_fmt=png" data-type="png" data-w="1459" height="203" width="415"/>
+ <br/>
+</p>
+<p>
+ 原文链接：https://www.cs.purdue.edu/homes/pfonseca/papers/sp2020-tees.pdf
+</p>
+<p>
+ <br/>
+</p>

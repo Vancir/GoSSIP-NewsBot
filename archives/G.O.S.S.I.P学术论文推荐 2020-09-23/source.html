@@ -1,0 +1,109 @@
+<p>
+ 今天我们推荐的是来自ACSAC 2019的一篇对符号执行中IR选择的系统性研究，探究了IR及其执行对符号执行对效率影响。
+</p>
+<p>
+ <img data-ratio="0.29156626506024097" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtblbyfk6mBLfTkxAyuBvXibWliaPMfT0FJNLLwueFg7CQUuLLlzr8JqL9Q/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ 符号执行作为一种非常流行的程序分析技术，常用于检测程序中存在的bug，并借由其求解器求解约束，得到有效触发bug的输入。但是该技术存在一定局限，包括路径爆炸和复杂约束求解的困难等。于是出现了concolic execution等符号执行的衍变，仅在需要符号数据的运算时才进行符号计算以降低开销。除此以外，符号执行中需要进行仿真执行，于是常用中间语言（IR）来降低复杂性并提高可移植性。
+</p>
+<p>
+ 本文中，作者设计了一个框架用以系统地比较不同实现的符号执行的效率，并评估了IR生成机制的选择对符号执行引擎性能的影响，还公开了框架与数据用作未来的研究。如图1所示，符号执行一般分为IR生成、执行计算和符号后端这三部分，其中最为核心的就是涉及IR和SMT solver的组件。
+</p>
+<p>
+ <img data-ratio="0.38313253012048193" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtbctZh8rsgvnx4ZUFcITTPCY9Q74eHm3OibNQhZFibAsps5GUmyiaxS7ZqA/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p style="caret-color: rgb(0, 0, 0);color: rgb(0, 0, 0);white-space: normal;">
+ 作者的研究包括了四种具有代表性的符号执行方法：KLEE、S2E、angr和Qsym。如表1所示，其中：
+</p>
+<ol class="list-paddingleft-2" style="list-style-type:decimal;">
+ <li>
+  <p>
+   KLEE、S2E采用的是LLVM IR，分别从源代码和二进制代码进行IR生成，angr采用的是VEX IR，Qsym直接用x86机器码进行符号执行；
+  </p>
+ </li>
+ <li>
+  <p>
+   S2E采用QEMU来进行模拟执行，angr采用Unicorn进行模拟执行，Qsym直接在CPU上执行，而KLEE则不采用具体执行。
+  </p>
+ </li>
+</ol>
+<p>
+ <img data-ratio="0.1493975903614458" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtbNHT0NnL5glAu9qncz1BynGgOdIIK9mGSWJ4tF1mkicEjpJJoL0QUS2g/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p style="caret-color: rgb(0, 0, 0);color: rgb(0, 0, 0);white-space: normal;">
+ 作者在评估阶段主要要回答两个问题：
+</p>
+<ol class="list-paddingleft-2" style="list-style-type:decimal;">
+ <li>
+  <p>
+   从源代码和从二进制文件生成IR，对符号执行对效率有何影响？
+  </p>
+ </li>
+ <li>
+  <p>
+   在IR生成方面相当时，IR的表现是否有明显差异，如果不使用IR又会有什么影响？
+  </p>
+ </li>
+</ol>
+<p style="caret-color: rgb(0, 0, 0);color: rgb(0, 0, 0);white-space: normal;">
+ 具体而言，作者从三个方面进行IR生成机制的评估衡量：
+</p>
+<ol class="list-paddingleft-2" style="list-style-type:decimal;">
+ <li>
+  <p>
+   转换为IR后，指令数量增加或减少了多少？
+  </p>
+ </li>
+ <li>
+  <p>
+   如何高效地执行生成的IR？
+  </p>
+ </li>
+ <li>
+  <p>
+   从IR派生的求解器查询有多难？
+  </p>
+ </li>
+</ol>
+<p style="caret-color: rgb(0, 0, 0);color: rgb(0, 0, 0);white-space: normal;">
+ 作者选用DARPA的 Cyber Grand Challenge (CGC)中的程序进行实验。由于路径选择和调度算法的选择对符号执行有重大影响，因此作者使符号执行遵循固定输入所确定的路径以消除干扰。同时，作者也对这四种符号执行引擎进行了轻微改动以适配实验。实验内容为在每个CGC程序上运行符号执行引擎，限时时间为30分钟，内存限制为24 GB。实验结果如下：
+</p>
+<p>
+ A. 作者将生成的IR指令的数量与相应的机器指令的数量进行比较，从而得到膨胀因子，如图2与表3所示。数据显示，基于源代码的IR生成方法能生成更简洁的IR，这得益于源代码中的更多高级信息。
+</p>
+<p>
+ <img data-ratio="0.5710843373493976" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtbSib9C4yYhZYBcygDTeYXFDTmFB4On9LOOqy0QOfpnHk2UPbSHwJHiaxQ/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ <img data-ratio="1.0120481927710843" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtbRPURqOO9Rp6ic7XibzLpeslzrZSuTYygM5MD8NaeDTL60tS04VAibRD1Q/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ B.  作者对表4所示的四种执行模式进行实验，得到了图3所示的结果。Qsym执行其“ IR”最快，其次是KLEE，S2E和angr。低级别IR可以比高级IR更快地执行，并且在涉及IR时，LLVM bitcode和VEX IR具有非常相似的属性。但是翻译的来源仍然会影响所生成IR的简洁性，导致更长时间的执行开销。
+ <br/>
+</p>
+<p>
+ <img data-ratio="0.4578313253012048" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtbub11T9WFicPghQdnkxnp0LiavNLeRicZ4jffT6gLrmX61ccdINaUIBJcA/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ <img data-ratio="0.8457831325301205" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtbicAe87WILYKGJWGHDy4Ua6W522rHKz0ZHCa8yG9LCgjuZYZ3uBDeQ9w/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p>
+ C. 作者在相同的固定路径上运行所有符号执行引擎，并记录发送到求解器的查询，然后，对这些查询单独运行求解器，并测量其响应时间，图4显示了测得的查询速率。三个基于二进制的符号执行系统比基于源代码的系统KLEE会生成更困难的查询，且数据显示LLVM IR更有利于派生SMT查询。
+</p>
+<p>
+ <img data-ratio="0.7542168674698795" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8O6ZVIEF00bd9ECaaWqrtb7dKJwZLKhTKiadiaRLRY3m0k4ic01oJQp84q7BQpKic1DIzB1Ox6YDYm5w/640?wx_fmt=png" data-type="png" data-w="830"/>
+</p>
+<p style="caret-color: rgb(0, 0, 0);color: rgb(0, 0, 0);white-space: normal;">
+ 最后，对于前面提到的两个问题，就有了数据支撑的回答了。基于源代码和二进制文件的IR生成各有千秋，基于源代码的话生成的查询更简单，但有时候基于二进制文件得到的底层信息也是很有价值的。另外在执行速度和求解难度上，实际上是有取舍权衡的。一方面基于低级指令的执行有着更快的速度，但另一方面高级代码产生的查询有更好的求解效率。
+</p>
+<p style="text-align: left;caret-color: rgb(0, 0, 0);color: rgb(0, 0, 0);white-space: normal;">
+ 原文链接：
+ https://dl.acm.org/doi/pdf/10.1145/3359789.3359796
+</p>
+<p>
+ <br/>
+</p>

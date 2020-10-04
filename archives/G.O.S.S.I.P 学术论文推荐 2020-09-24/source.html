@@ -1,0 +1,66 @@
+<p>
+ 今天我们为大家推荐2021年IEEE S&amp;P会议上的一篇论文，这篇论文讨论了编译器代码优化对反汇编分析过程中函数签名（function signature）的识别产生的（正面与负面并存）的影响
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.2627653471026965" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8y9cS1FHrEVComp4PR8uBj2jxMmibttXdqhcaJaNpNmA3QYdHmwpGerzC0Aoaib1ibMhXgyM1pTstzw/640?wx_fmt=png" data-type="png" data-w="1743" style=""/>
+</p>
+<p>
+ 在二进制代码的控制流图（CFG）分析中，识别间接调用（indirect call）往往是分析的难点，如果无法准确找到所有的调用关系，对控制流完整性（CFI）的实现就难以做到尽善尽美。一些已有的工作（如TypeArmor）在二进制代码上对函数的调用约定（call convention）进行分析并生成函数签名，为caller和callee寻找配对关系。
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.9585326953748007" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8y9cS1FHrEVComp4PR8uBjJ5icPA3HiaBuWlAuSaM4wJHznwYKXZG6zjFoQXXB5o8mckZITsgjhLgA/640?wx_fmt=png" data-type="png" data-w="627" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p>
+ 为了研究编译器优化对基于函数签名的识别工作的影响，本文的作者详细分析了编译器存在的8类对函数签名的改变，其中包括对使用stack还是使用register来进行参数传递的识别的影响，对特定寄存器的使用的误判，
+ <br/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.5559006211180124" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8y9cS1FHrEVComp4PR8uBj45UofsGmUfvMjPmgsF6krdV4yIgg8BRnfA5W4ZexibeJz9jNribA8mGQ/640?wx_fmt=png" data-type="png" data-w="644" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.5502392344497608" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8y9cS1FHrEVComp4PR8uBjzRY0oNOYWHhPv0fn2vnJouNpAmPqgzHzJwqapSoKCfAPc7W9GgicUDw/640?wx_fmt=png" data-type="png" data-w="627" style=""/>
+</p>
+<p>
+ <br/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.0493827160493827" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8y9cS1FHrEVComp4PR8uBjP0iaGcZxiaUZDB4SBCwaR5a72KuD6LM1z6usncofDRiav0wVa4jtyJJCQ/640?wx_fmt=png" data-type="png" data-w="648" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="0.694888178913738" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8y9cS1FHrEVComp4PR8uBjkSLIOV021tWFqrkUv7mg16hibQcqHqGmjMahaY8uV3JqDpRndG3jnqw/640?wx_fmt=png" data-type="png" data-w="626" style=""/>
+</p>
+<p style="text-align: center;">
+ <img class="rich_pages" data-ratio="1.1204819277108433" data-s="300,640" data-src="https://mmbiz.qpic.cn/sz_mmbiz_png/Ugr3WBm6od8y9cS1FHrEVComp4PR8uBj140dSucUibfwialjKuHQB1EfV9o2ia5lrTQytYuzHhDxubxeJ3MTr8B2g/640?wx_fmt=png" data-type="png" data-w="664" style=""/>
+</p>
+<p style="text-align: center;">
+ <br/>
+</p>
+<p>
+ 作者研究表明，在分析过程中，很多干扰来自于编译器的不同优化选项产生的多样性，因此作者提出了compiler-optimization-friendly policies来细粒度处理不同的代码，先对代码的优化级别进行分析，然后采取不同的函数签名识别策略。作者针对1344个程序（552 C and 792 C++，使用gcc-8和clang-7从-O0到-O3编译选项）的分析表明，针对参数个数和参数类型的分析，使用了作者提出的策略都会得到更好的结果（同已有三个工具TypeArmor, τCFI, Ghidra对比）
+</p>
+<p>
+ <br/>
+</p>
+<p>
+</p>
+<p>
+ 论文PDF：
+</p>
+<p>
+ https://www.computer.org/csdl/proceedings-article/sp/2021/893400a091/1mbmHtHLPAA
+</p>
